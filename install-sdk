@@ -1,0 +1,253 @@
+#!/bin/bash
+set -e
+
+unamestr=`uname`
+
+cygwin() {
+    if [[ $unamestr == 'Darwin' ]]; then
+        [[ "$(uname -s | sed -E "s/-.*$//")" = "CYGWIN_NT" ]]
+    else
+        [[ "$(uname -s | sed -re "s/-.*$//")" = "CYGWIN_NT" ]]
+    fi
+}
+xbuild=xbuild
+
+prereqs() {
+    missing=0
+    hash cmake 2>/dev/null || { missing=1; echo >&2 "Please install cmake, which is available through your package manager or http://www.cmake.org/"; }
+    hash git 2>/dev/null || { missing=1; echo >&2 "Please install git, which is available through your package manager or http://git-scm.com/"; }
+    hash a2x 2>/dev/null || { missing=1; echo >&2 "Please install asciidoc, which is available through your package manager or http://asciidoc.org/"; }
+    hash gcc 2>/dev/null || { missing=1; echo >&2 "Please install gcc, which is available through your package manager or https://gcc.gnu.org/"; }
+    hash make 2>/dev/null || { missing=1; echo >&2 "Please install GNU make, which is available through your package manager or http://www.gnu.org/software/make/"; }
+    hash flex 2>/dev/null || { missing=1; echo >&2 "Please install flex, which is available through your package manager or http://flex.sourceforge.net/"; }
+    hash bison 2>/dev/null || { missing=1; echo >&2 "Please install bison, which is available through your package manager or https://www.gnu.org/software/bison/"; }
+    hash python3 2>/dev/null || { missing=1; echo >&2 "Please install Python 3, which is available through your package manager or https://www.python.org/"; }
+    hash magick 2>/dev/null || { missing=1; echo >&2 "Please install ImageMagick 6 (and its headers), which is available through your package manager or http://imagemagick.org"; }
+    if cygwin; then
+        hash msbuild.exe 2>/dev/null || { missing=1; echo >&2 "Please install Microsoft.NET and add 'C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319' to your %PATH%. .NET is available from http://www.microsoft.com/net"; }
+        xbuild=msbuild.exe
+    else
+        hash mono 2>/dev/null || { missing=1; echo >&2 "Please install mono, which is available through your package manager or http://mono-project.com/"; }
+        hash xbuild 2>/dev/null || { missing=1; echo >&2 "Please install mono (including build tools), which is available through your package manager or http://mono-project.com/"; }
+        hash pip3 2>/dev/null || { missing=1; echo >&2 "Please install pip3, which is available through your package manager or https://pip.pypa.io/en/latest/installing.html"; }
+        hash sdl2-config 2>/dev/null || { missing=1; echo >&2 "Please install SDL (and its headers), which is available through your package manager or http://www.libsdl.org/"; }
+    fi
+    [ -e /usr/include/readline/readline.h ] || { missing=1; echo >&2 "Please install readline (and its headers), which is available through your package manager (libreadline-dev on Debian/Ubuntu)"; }
+    if [[ $unamestr == 'Darwin' ]]; then
+       [ -e "/usr/local/Cellar/boost/"*"/include/boost/config.hpp" ] || { missing=1; echo >&2 "Please install boost (and its headers) via Homebrew"; }
+    else
+        [ -e /usr/include/boost/config.hpp ] || { missing=1; echo >&2 "Please install boost (and its headers), which is available through your package manager"; }
+    fi
+    if [ $missing -eq 1 ]; then
+        exit 1
+    fi
+    if cygwin; then
+        echo "Cygwin users - make sure you're running cygwin as administrator!"
+    fi
+}
+
+quiet() {
+    output=`$* 2>&1` || { echo $output; exit 1; }
+}
+
+install() {
+    wd=$(pwd)
+    cd $(mktemp -dt SDK.XXXXXX)
+    $*
+    cd $wd
+}
+
+asroot() {
+    if [[ $unamestr == 'Darwin' ]]; then
+        sudo $*
+    elif [[ "$(uname -s | sed -re "s/-.*$//")" = "CYGWIN_NT" ]]; then
+        quiet $*
+    else
+        sudo $*
+    fi
+}
+
+info() {
+    echo -ne '\e[0;34m'
+    echo -n $*
+    echo -e '\e[0m'
+}
+
+genkfs() {
+    info Downloading genkfs...
+    quiet git clone https://github.com/KnightOS/genkfs
+    cd genkfs
+    info Compiling genkfs...
+    quiet make
+    info Installing genkfs...
+    asroot make install
+}
+
+mktiupgrade() {
+    info Downloading mktiupgrade...
+    quiet git clone https://github.com/KnightOS/mktiupgrade
+    cd mktiupgrade
+    info Compiling mktiupgrade...
+    quiet make
+    info Installing mktiupgrade...
+    asroot make install
+}
+
+kpack() {
+    info Downloading kpack...
+    quiet git clone https://github.com/KnightOS/kpack
+    cd kpack
+    info Compiling kpack...
+    quiet make
+    info Installing kpack...
+    asroot make install
+}
+
+kimg() {
+    info Downloading kimg...
+    quiet git clone https://github.com/KnightOS/kimg
+    cd kimg
+    info Compiling kimg...
+    quiet make
+    info Installing kimg...
+    asroot make install
+}
+
+z80e() {
+    info Downloading z80e...
+    quiet git clone --recursive git://github.com/KnightOS/z80e.git
+    cd z80e
+    info Compiling z80e...
+    quiet cmake -Denable-sdl=YES .
+    quiet make
+    info Installing z80e...
+    asroot make install
+}
+
+scas() {
+    info Downloading scas...
+    quiet git clone https://github.com/KnightOS/scas.git
+    cd scas
+    info Compiling scas...
+    quiet make
+    info Installing scas...
+    asroot make install
+}
+
+kcc() {
+    info Downloading kcc...
+    quiet git clone https://github.com/KnightOS/kcc.git
+    cd kcc
+    info Compiling kcc...
+    quiet cmake .
+    quiet make
+    info Installing kcc...
+    asroot make install
+}
+
+sass() {
+    info Downloading sass...
+    quiet git clone https://github.com/KnightOS/sass
+    cd sass
+    info Compiling sass...
+    quiet make
+    info Installing sass...
+    asroot make install
+}
+
+pip() { # cygwin only
+    info Installing pip...
+    quiet wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py
+    quiet python3 ez_setup.py
+    quiet /usr/bin/easy_install-3.2 pip
+}
+
+sdk() {
+    info Downloading SDK...
+    quiet git clone git://github.com/KnightOS/sdk.git
+    info Installing SDK requirements...
+    asroot pip3 install docopt
+    asroot pip3 install requests
+    asroot pip3 install pystache
+    asroot pip3 install pyyaml
+    cd sdk
+    info Installing SDK...
+    asroot ./setup.py install
+}
+
+force_all() {
+    install genkfs
+    install mktiupgrade
+    install kpack
+    install kimg
+    install sass
+    install scas
+    install kcc
+    if cygwin; then
+        install pip
+    else
+        install z80e
+    fi
+    install sdk
+    info KnightOS SDK installed!
+}
+
+prereqs
+if [[ $# -eq 0 ]]; then
+    force_all
+    echo "Thanks for installing the KnightOS SDK!"
+    echo "You can run 'knightos --help' to find out how to use it."
+    echo "Resources are available online at http://www.knightos.org/documentation"
+    echo "Have fun!"
+else
+    case "$1" in
+        genkfs)
+            install genkfs
+            shift 1
+            ;;
+        mktiupgrade)
+            install mktiupgrade
+            shift 1
+            ;;
+        kpack)
+            install kpack
+            shift 1
+            ;;
+        kimg)
+            install kimg
+            shift 1
+            ;;
+        z80e)
+            install z80e
+            shift 1
+            ;;
+        sass)
+            install sass
+            shift 1
+            ;;
+        scas)
+            install scas
+            shift 1
+            ;;
+        kcc)
+            install kcc
+            shift 1
+            ;;
+        sdk)
+            install sdk
+            shift 1
+            ;;
+        pip)
+            install pip
+            shift 1
+            ;;
+        all)
+            force_all
+            shift 1
+            ;;
+        *)
+            echo "Error: $1 is not a valid option."
+            exit 1
+            ;;
+    esac
+fi
