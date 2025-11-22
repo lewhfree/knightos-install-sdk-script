@@ -2,6 +2,7 @@
 set -e
 
 unamestr=`uname`
+verbose=0
 
 cygwin() {
     if [[ $unamestr == 'Darwin' ]]; then
@@ -47,9 +48,12 @@ prereqs() {
 }
 
 quiet() {
-    output=`$* 2>&1` || { echo $output; exit 1; }
+    if [[ $verbose == 1 ]]; then
+        $*
+    else
+        output=`$* 2>&1` || { echo $output; exit 1; }
+    fi
 }
-
 install() {
     wd=$(pwd)
     cd $(mktemp -dt SDK.XXXXXX)
@@ -80,7 +84,7 @@ genkfs() {
     info Compiling genkfs...
     quiet make
     info Installing genkfs...
-    asroot make install
+    quiet asroot make install
 }
 
 mktiupgrade() {
@@ -90,7 +94,7 @@ mktiupgrade() {
     info Compiling mktiupgrade...
     quiet make
     info Installing mktiupgrade...
-    asroot make install
+    quiet asroot make install
 }
 
 kpack() {
@@ -100,7 +104,7 @@ kpack() {
     info Compiling kpack...
     quiet make
     info Installing kpack...
-    asroot make install
+    quiet asroot make install
 }
 
 kimg() {
@@ -110,15 +114,15 @@ kimg() {
     info Compiling kimg...
     quiet make
     info Installing kimg...
-    asroot make install
+    quiet asroot make install
 }
 
 z80e() {
     info Downloading z80e...
-    quiet git clone --recursive git://github.com/KnightOS/z80e.git
+    quiet git clone --recursive https://github.com/lewhfree/z80e.git
     cd z80e
     info Compiling z80e...
-    quiet cmake -Denable-sdl=YES .
+    quiet cmake -Denable-sdl=YES -Denable-tui=NO .
     quiet make
     info Installing z80e...
     asroot make install
@@ -131,18 +135,20 @@ scas() {
     info Compiling scas...
     quiet make
     info Installing scas...
-    asroot make install
+    quiet asroot make install
+    quiet asroot make install_lib_shared
+    quiet asroot make install_lib_static
 }
 
 kcc() {
     info Downloading kcc...
-    quiet git clone https://github.com/KnightOS/kcc.git
+    quiet git clone https://github.com/lewhfree/kcc.git
     cd kcc
     info Compiling kcc...
     quiet cmake .
     quiet make
     info Installing kcc...
-    asroot make install
+    quiet asroot make install
 }
 
 sass() {
@@ -152,27 +158,15 @@ sass() {
     info Compiling sass...
     quiet make
     info Installing sass...
-    asroot make install
-}
-
-pip() { # cygwin only
-    info Installing pip...
-    quiet wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py
-    quiet python3 ez_setup.py
-    quiet /usr/bin/easy_install-3.2 pip
+    quiet asroot make install
 }
 
 sdk() {
     info Downloading SDK...
-    quiet git clone git://github.com/KnightOS/sdk.git
-    info Installing SDK requirements...
-    asroot pip3 install docopt
-    asroot pip3 install requests
-    asroot pip3 install pystache
-    asroot pip3 install pyyaml
+    quiet git clone https://github.com/lewhfree/sdk.git
     cd sdk
     info Installing SDK...
-    asroot ./setup.py install
+    quiet pip install . --break-system-packages
 }
 
 force_all() {
@@ -183,11 +177,6 @@ force_all() {
     install sass
     install scas
     install kcc
-    if cygwin; then
-        install pip
-    else
-        install z80e
-    fi
     install sdk
     info KnightOS SDK installed!
 }
