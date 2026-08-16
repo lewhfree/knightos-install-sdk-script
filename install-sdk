@@ -117,7 +117,7 @@ kpack() {
 
 kimg() {
     info Downloading kimg...
-    quiet git clone --depth 1 https://github.com/KnightOS/kimg
+    quiet git clone --depth 1 https://github.com/lewhfree/kimg
     mkdir -p kimg/bin
     cd kimg
     info Compiling kimg...
