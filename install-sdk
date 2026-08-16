@@ -11,6 +11,15 @@ cygwin() {
         [[ "$(uname -s | sed -re "s/-.*$//")" = "CYGWIN_NT" ]]
     fi
 }
+
+if command -v nproc >/dev/null 2>&1; then
+    jobs=$(nproc)
+elif command -v sysctl >/dev/null 2>&1; then
+    jobs=$(sysctl -n hw.ncpu)
+else
+    jobs=1
+fi
+
 xbuild=xbuild
 
 prereqs() {
@@ -79,61 +88,61 @@ info() {
 
 genkfs() {
     info Downloading genkfs...
-    quiet git clone https://github.com/KnightOS/genkfs
+    quiet git clone --depth 1 https://github.com/KnightOS/genkfs
     cd genkfs
     info Compiling genkfs...
-    quiet make
+    quiet make -j"$jobs"
     info Installing genkfs...
     quiet asroot make install
 }
 
 mktiupgrade() {
     info Downloading mktiupgrade...
-    quiet git clone https://github.com/KnightOS/mktiupgrade
+    quiet git clone --depth 1 https://github.com/KnightOS/mktiupgrade
     cd mktiupgrade
     info Compiling mktiupgrade...
-    quiet make
+    quiet make -j"$jobs"
     info Installing mktiupgrade...
     quiet asroot make install
 }
 
 kpack() {
     info Downloading kpack...
-    quiet git clone https://github.com/KnightOS/kpack
+    quiet git clone --depth 1 https://github.com/KnightOS/kpack
     cd kpack
     info Compiling kpack...
-    quiet make
+    quiet make -j"$jobs"
     info Installing kpack...
     quiet asroot make install
 }
 
 kimg() {
     info Downloading kimg...
-    quiet git clone https://github.com/KnightOS/kimg
+    quiet git clone --depth 1 https://github.com/KnightOS/kimg
     cd kimg
     info Compiling kimg...
-    quiet make
+    quiet make -j"$jobs"
     info Installing kimg...
     quiet asroot make install
 }
 
 z80e() {
     info Downloading z80e...
-    quiet git clone --recursive https://github.com/lewhfree/z80e.git
+    quiet git clone --depth 1 --recursive https://github.com/lewhfree/z80e.git
     cd z80e
     info Compiling z80e...
     quiet cmake -Denable-sdl=YES -Denable-tui=NO .
-    quiet make
+    quiet make -j"$jobs"
     info Installing z80e...
     asroot make install
 }
 
 scas() {
     info Downloading scas...
-    quiet git clone https://github.com/KnightOS/scas.git
+    quiet git clone --depth 1 https://github.com/KnightOS/scas.git
     cd scas
     info Compiling scas...
-    quiet make
+    quiet make -j"$jobs"
     info Installing scas...
     quiet asroot make install
     quiet asroot make install_lib_shared
@@ -142,48 +151,48 @@ scas() {
 
 kcc() {
     info Downloading kcc...
-    quiet git clone https://github.com/lewhfree/kcc.git
+    quiet git clone --depth 1 https://github.com/lewhfree/kcc.git
     cd kcc
     info Compiling kcc...
     quiet cmake .
-    quiet make
+    quiet make -j"$jobs"
     info Installing kcc...
     quiet asroot make install
 }
 
 sass() {
     info Downloading sass...
-    quiet git clone https://github.com/KnightOS/sass
+    quiet git clone --depth 1 https://github.com/KnightOS/sass
     cd sass
     info Compiling sass...
-    quiet make
+    quiet make -j"$jobs"
     info Installing sass...
     quiet asroot make install
 }
 
 mkrom() {
     info Downloading mkrom...
-    quiet git clone https://github.com/Knightos/mkrom
+    quiet git clone --depth 1 https://github.com/Knightos/mkrom
     cd mkrom
     info Compiling mkrom...
-    quiet make
+    quiet make -j"$jobs"
     info Installing mkrom...
     quiet asroot make install
 }
 
 patchrom() {
     info Downloading patchrom...
-    quiet git clone https://github.com/Knightos/patchrom
+    quiet git clone --depth 1 https://github.com/Knightos/patchrom
     cd patchrom
     info Compiling patchrom...
-    quiet make
+    quiet make -j"$jobs"
     info Installing patchrom...
     quiet asroot make install
 }
 
 sdk() {
     info Downloading SDK...
-    quiet git clone https://github.com/lewhfree/sdk.git
+    quiet git clone --depth 1 https://github.com/lewhfree/sdk.git
     cd sdk
     info Installing SDK...
     quiet pip install . --break-system-packages
