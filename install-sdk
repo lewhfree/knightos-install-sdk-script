@@ -161,6 +161,26 @@ sass() {
     quiet asroot make install
 }
 
+mkrom() {
+    info Downloading mkrom...
+    quiet git clone https://github.com/Knightos/mkrom
+    cd mkrom
+    info Compiling mkrom...
+    quiet make
+    info Installing mkrom...
+    quiet asroot make install
+}
+
+patchrom() {
+    info Downloading patchrom...
+    quiet git clone https://github.com/Knightos/patchrom
+    cd patchrom
+    info Compiling patchrom...
+    quiet make
+    info Installing patchrom...
+    quiet asroot make install
+}
+
 sdk() {
     info Downloading SDK...
     quiet git clone https://github.com/lewhfree/sdk.git
@@ -178,6 +198,8 @@ force_all() {
     install scas
     install kcc
     install sdk
+    install mkrom
+    install patchrom
     info KnightOS SDK installed!
 }
 
