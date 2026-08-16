@@ -126,17 +126,6 @@ kimg() {
     quiet asroot make install
 }
 
-z80e() {
-    info Downloading z80e...
-    quiet git clone --depth 1 --recursive https://github.com/lewhfree/z80e.git
-    cd z80e
-    info Compiling z80e...
-    quiet cmake -Denable-sdl=YES -Denable-tui=NO .
-    quiet make -j"$jobs"
-    info Installing z80e...
-    asroot make install
-}
-
 scas() {
     info Downloading scas...
     quiet git clone --depth 1 https://github.com/KnightOS/scas.git
@@ -235,10 +224,6 @@ else
             ;;
         kimg)
             install kimg
-            shift 1
-            ;;
-        z80e)
-            install z80e
             shift 1
             ;;
         sass)
