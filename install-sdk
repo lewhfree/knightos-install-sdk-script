@@ -32,7 +32,6 @@ prereqs() {
     hash flex 2>/dev/null || { missing=1; echo >&2 "Please install flex, which is available through your package manager or http://flex.sourceforge.net/"; }
     hash bison 2>/dev/null || { missing=1; echo >&2 "Please install bison, which is available through your package manager or https://www.gnu.org/software/bison/"; }
     hash python3 2>/dev/null || { missing=1; echo >&2 "Please install Python 3, which is available through your package manager or https://www.python.org/"; }
-    hash magick 2>/dev/null || { missing=1; echo >&2 "Please install ImageMagick 6 (and its headers), which is available through your package manager or http://imagemagick.org"; }
     if cygwin; then
         hash msbuild.exe 2>/dev/null || { missing=1; echo >&2 "Please install Microsoft.NET and add 'C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319' to your %PATH%. .NET is available from http://www.microsoft.com/net"; }
         xbuild=msbuild.exe
@@ -40,7 +39,6 @@ prereqs() {
         hash mono 2>/dev/null || { missing=1; echo >&2 "Please install mono, which is available through your package manager or http://mono-project.com/"; }
         hash xbuild 2>/dev/null || { missing=1; echo >&2 "Please install mono (including build tools), which is available through your package manager or http://mono-project.com/"; }
         hash pip3 2>/dev/null || { missing=1; echo >&2 "Please install pip3, which is available through your package manager or https://pip.pypa.io/en/latest/installing.html"; }
-        hash sdl2-config 2>/dev/null || { missing=1; echo >&2 "Please install SDL (and its headers), which is available through your package manager or http://www.libsdl.org/"; }
     fi
     [ -e /usr/include/readline/readline.h ] || { missing=1; echo >&2 "Please install readline (and its headers), which is available through your package manager (libreadline-dev on Debian/Ubuntu)"; }
     if [[ $unamestr == 'Darwin' ]]; then
