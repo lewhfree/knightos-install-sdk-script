@@ -89,6 +89,7 @@ info() {
 genkfs() {
     info Downloading genkfs...
     quiet git clone --depth 1 https://github.com/KnightOS/genkfs
+    quiet mkdir -p genkfs/bin
     cd genkfs
     info Compiling genkfs...
     quiet make -j"$jobs"
@@ -119,6 +120,7 @@ kpack() {
 kimg() {
     info Downloading kimg...
     quiet git clone --depth 1 https://github.com/KnightOS/kimg
+    mkdir -p kimg/bin
     cd kimg
     info Compiling kimg...
     quiet make -j"$jobs"
@@ -162,6 +164,7 @@ sass() {
 mkrom() {
     info Downloading mkrom...
     quiet git clone --depth 1 https://github.com/Knightos/mkrom
+    mkdir -p mkrom/bin
     cd mkrom
     info Compiling mkrom...
     quiet make -j"$jobs"
@@ -172,6 +175,7 @@ mkrom() {
 patchrom() {
     info Downloading patchrom...
     quiet git clone --depth 1 https://github.com/Knightos/patchrom
+    mkdir -p patchrom/bin
     cd patchrom
     info Compiling patchrom...
     quiet make -j"$jobs"
